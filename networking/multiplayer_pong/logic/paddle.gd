@@ -33,8 +33,8 @@ func _process(delta: float) -> void:
 
 
 @rpc("unreliable")
-func set_control() -> void:
-	set_multiplayer_authority(multiplayer.get_unique_id())
+func set_control(peer_id: int) -> void:
+	set_multiplayer_authority(peer_id)
 	
 
 # Synchronize position and speed to the other peers.

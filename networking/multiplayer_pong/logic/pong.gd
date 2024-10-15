@@ -20,12 +20,12 @@ func _ready() -> void:
 	# set_multiplayer_authority is tree-recursive by default.
 	if multiplayer.is_server():
 		# For the server, give control of one paddle to each player
-		var peers = multiplayer.get_peers()
+		var peers := multiplayer.get_peers()
 		player1.set_multiplayer_authority(peers[0])
-		player1.set_control.rpc_id(peers[0])
+		player1.set_control.rpc(peers[0])
 		
 		player2.set_multiplayer_authority(peers[1])
-		player2.set_control.rpc_id(peers[1])
+		player2.set_control.rpc(peers[1])
 
 	print("Unique id: ", multiplayer.get_unique_id())
 
