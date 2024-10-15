@@ -7,6 +7,7 @@ const SCORE_TO_WIN = 10
 var score_left := 0
 var score_right := 0
 
+@onready var player1: Area2D = $Player1
 @onready var player2: Area2D = $Player2
 @onready var score_left_node: Label = $ScoreLeft
 @onready var score_right_node: Label = $ScoreRight
@@ -18,11 +19,13 @@ func _ready() -> void:
 	# while all nodes in clients inherit from puppet.
 	# set_multiplayer_authority is tree-recursive by default.
 	if multiplayer.is_server():
-		# For the server, give control of player 2 to the other peer.
-		player2.set_multiplayer_authority(multiplayer.get_peers()[0])
-	else:
-		# For the client, give control of player 2 to itself.
-		player2.set_multiplayer_authority(multiplayer.get_unique_id())
+		# For the server, give control of one paddle to each player
+		var peers = multiplayer.get_peers()
+		player1.set_multiplayer_authority(peers[0])
+		player1.set_control.rpc_id(peers[0])
+		
+		player2.set_multiplayer_authority(peers[1])
+		player2.set_control.rpc_id(peers[1])
 
 	print("Unique id: ", multiplayer.get_unique_id())
 

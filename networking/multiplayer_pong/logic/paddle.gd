@@ -32,6 +32,11 @@ func _process(delta: float) -> void:
 	position.y = clampf(position.y, 16, _screen_size_y - 16)
 
 
+@rpc("unreliable")
+func set_control() -> void:
+	set_multiplayer_authority(multiplayer.get_unique_id())
+	
+
 # Synchronize position and speed to the other peers.
 @rpc("unreliable")
 func set_pos_and_motion(pos: Vector2, motion: float) -> void:

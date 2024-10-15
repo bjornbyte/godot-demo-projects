@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://bafoh1ief0147"]
+[gd_scene load_steps=6 format=3 uid="uid://bafoh1ief0147"]
 
 [ext_resource type="Script" path="res://logic/pong.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://b10swafhe08oj" path="res://separator.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://cpw46256eirwq" path="res://paddle.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://bjmldn1x3lpa" path="res://ball.tscn" id="4"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_06mt0"]
 
 [node name="Pong" type="Node2D"]
 script = ExtResource("1")
@@ -81,6 +83,9 @@ text = "Exit Game"
 
 [node name="Camera2D" type="Camera2D" parent="."]
 offset = Vector2(320, 200)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_06mt0")
 
 [connection signal="pressed" from="ExitGame" to="." method="_on_exit_game_pressed"]
 

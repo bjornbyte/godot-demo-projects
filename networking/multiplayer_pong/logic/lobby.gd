@@ -26,13 +26,14 @@ func _ready() -> void:
 #region Network callbacks from SceneTree
 # Callback from SceneTree.
 func _player_connected(_id: int) -> void:
-	# Someone connected, start the game!
-	var pong: Node2D = load("res://pong.tscn").instantiate()
-	# Connect deferred so we can safely erase it from the callback.
-	pong.game_finished.connect(_end_game, CONNECT_DEFERRED)
+	if (multiplayer.get_peers().size() == 2):
+		# Everyone connected, start the game!
+		var pong: Node2D = load("res://pong.tscn").instantiate()
+		# Connect deferred so we can safely erase it from the callback.
+		pong.game_finished.connect(_end_game, CONNECT_DEFERRED)
 
-	get_tree().get_root().add_child(pong)
-	hide()
+		get_tree().get_root().add_child(pong)
+		hide()
 
 
 func _player_disconnected(_id: int) -> void:
@@ -88,7 +89,7 @@ func _set_status(text: String, is_ok: bool) -> void:
 func _on_host_pressed() -> void:
 	peer = ENetMultiplayerPeer.new()
 	# Set a maximum of 1 peer, since Pong is a 2-player game.
-	var err := peer.create_server(DEFAULT_PORT, 1)
+	var err := peer.create_server(DEFAULT_PORT, 2)
 	if err != OK:
 		# Is another server running?
 		_set_status("Can't host, address in use.",false)

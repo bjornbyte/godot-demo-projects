@@ -22,24 +22,12 @@ func _process(delta: float) -> void:
 		direction.y = -direction.y
 
 	if is_multiplayer_authority():
-		# Only the master will decide when the ball is out in
-		# the left side (its own side). This makes the game
-		# playable even if latency is high and ball is going
-		# fast. Otherwise, the ball might be out in the other
-		# player's screen but not this one.
 		if ball_pos.x < 0:
-			get_parent().update_score.rpc(false)
-			_reset_ball.rpc(false)
-	else:
-		# Only the puppet will decide when the ball is out in
-		# the right side, which is its own side. This makes
-		# the game playable even if latency is high and ball
-		# is going fast. Otherwise, the ball might be out in the
-		# other player's screen but not this one.
-		if ball_pos.x > _screen_size.x:
 			get_parent().update_score.rpc(true)
 			_reset_ball.rpc(true)
-
+		if ball_pos.x > _screen_size.x:
+			get_parent().update_score.rpc(false)
+			_reset_ball.rpc(false)
 
 @rpc("any_peer", "call_local")
 func bounce(left: bool, random: float) -> void:
