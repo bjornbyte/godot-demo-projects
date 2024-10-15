@@ -30,7 +30,7 @@ func _ready() -> void:
 	if args.has("port"):
 		port = args["port"]
 	
-	if dsid == null:
+	if dsid == "":
 		return 
 	
 	heartbeat_timer.timeout.connect(_send_heartbeat)
