@@ -37,7 +37,7 @@ func _ready() -> void:
 	add_child(heartbeat_timer)
 	heartbeat_timer.start(15)
 	
-	_connect()
+	_ensure_connected()
 
 func _process(_delta: float) -> void:
 	socket.poll()
@@ -61,26 +61,34 @@ func _parse_message(message: String) -> void:
 		else:
 			push_error("unexpected message", message)
 
-func _connect() -> void:
-	if socket.connect_to_url(watchdog_websocket_url) != OK:
-		push_error("Unable to connect.")
-		set_process(false)	
+func _ensure_connected() -> void:
+	var socket_state := socket.get_ready_state()
+	if socket_state == WebSocketPeer.STATE_CLOSED || socket_state == WebSocketPeer.STATE_CLOSING:
+		if socket.connect_to_url(watchdog_websocket_url) != OK:
+			push_error("Unable to connect.")
+			set_process(false)
+	
+	while socket.get_ready_state() == WebSocketPeer.STATE_CONNECTING:
+		# Create a Timer node
+		var timer := Timer.new()
+		add_child(timer)
+		timer.wait_time = 0.2
+		timer.start()
+		await timer.timeout
+		remove_child(timer)
 
 func _exit_tree() -> void:
 	socket.close()
 
 func _send_heartbeat() -> void:
-	if socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
-		_connect()
-	
+	await _ensure_connected()
 	var message := JSON.stringify({
 	"heartbeat": {},
 	})
 	socket.send_text(message)
 
 func SendReady() -> void:
-	if socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
-		_connect()
+	await _ensure_connected()
 	var message := JSON.stringify({
 		"ready": {
 			"dsid": dsid
