@@ -22,6 +22,10 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_connected_ok)
 	multiplayer.connection_failed.connect(_connected_fail)
 	multiplayer.server_disconnected.connect(_server_disconnected)
+	
+	if OS.has_feature("dedicated_server"):
+		# Run your server startup code here...
+		_host_server()
 
 #region Network callbacks from SceneTree
 # Callback from SceneTree.
@@ -87,6 +91,9 @@ func _set_status(text: String, is_ok: bool) -> void:
 
 
 func _on_host_pressed() -> void:
+	_host_server()
+
+func _host_server() -> void:
 	peer = ENetMultiplayerPeer.new()
 	# Set a maximum of 1 peer, since Pong is a 2-player game.
 	var err := peer.create_server(DEFAULT_PORT, 2)
