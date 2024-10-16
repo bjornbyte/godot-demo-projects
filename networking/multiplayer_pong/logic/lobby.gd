@@ -23,9 +23,11 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_connected_fail)
 	multiplayer.server_disconnected.connect(_server_disconnected)
 	
-	if OS.has_feature("dedicated_server"):
+	if OS.has_feature("dedicated_server") || Ams.is_enabled():
 		# Run your server startup code here...
 		_host_server()
+		if (Ams.is_enabled()):
+			Ams.SendReady()
 
 #region Network callbacks from SceneTree
 # Callback from SceneTree.

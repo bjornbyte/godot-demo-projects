@@ -11,7 +11,7 @@ var dsid: String
 var port: int
 
 func is_enabled() -> bool:
-	return dsid != null
+	return dsid != ""
 
 func _parse_cmdline_user_args() -> Dictionary:
 	var arguments := {}
