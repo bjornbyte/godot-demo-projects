@@ -102,8 +102,11 @@ func _on_host_pressed() -> void:
 
 func _host_server() -> void:
 	peer = ENetMultiplayerPeer.new()
-	# Set a maximum of 1 peer, since Pong is a 2-player game.
-	var err := peer.create_server(DEFAULT_PORT, 2)
+	
+	var port := DEFAULT_PORT
+	if Ams.is_enabled() && Ams.port != 0:
+		port = Ams.port
+	var err := peer.create_server(port, 2)
 	if err != OK:
 		# Is another server running?
 		_set_status("Can't host, address in use.",false)
@@ -122,13 +125,18 @@ func _host_server() -> void:
 
 
 func _on_join_pressed() -> void:
-	var ip := address.get_text()
+	var ip_port := address.get_text().split(":")
+	var ip := ip_port[0]
 	if not ip.is_valid_ip_address():
 		_set_status("IP address is invalid.", false)
 		return
+	
+	var port := DEFAULT_PORT
+	if ip_port.size()>1 && ip_port[1].is_valid_int():
+		port = ip_port[1].to_int()
 
 	peer = ENetMultiplayerPeer.new()
-	peer.create_client(ip, DEFAULT_PORT)
+	peer.create_client(ip, port)
 	peer.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.set_multiplayer_peer(peer)
 

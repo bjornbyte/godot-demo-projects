@@ -28,7 +28,7 @@ func _ready() -> void:
 	if args.has("dsid"):
 		dsid = args["dsid"]
 	if args.has("port"):
-		port = args["port"]
+		port = args["port"].to_int()
 	
 	if dsid == "":
 		return 
