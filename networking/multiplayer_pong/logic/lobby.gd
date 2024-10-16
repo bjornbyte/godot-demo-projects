@@ -15,6 +15,9 @@ const DEFAULT_PORT = 8910
 
 var peer: ENetMultiplayerPeer
 
+func _is_dedicated_server() -> bool:
+	return OS.has_feature("dedicated_server") || Ams.is_enabled()
+
 func _ready() -> void:
 	# Connect all the callbacks related to networking.
 	multiplayer.peer_connected.connect(_player_connected)
@@ -23,7 +26,7 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_connected_fail)
 	multiplayer.server_disconnected.connect(_server_disconnected)
 	
-	if OS.has_feature("dedicated_server") || Ams.is_enabled():
+	if _is_dedicated_server():
 		# Run your server startup code here...
 		_host_server()
 		if (Ams.is_enabled()):
@@ -80,6 +83,8 @@ func _end_game(with_error: String = "") -> void:
 	join_button.set_disabled(false)
 
 	_set_status(with_error, false)
+	if _is_dedicated_server():
+		get_tree().quit(0)
 
 
 func _set_status(text: String, is_ok: bool) -> void:
