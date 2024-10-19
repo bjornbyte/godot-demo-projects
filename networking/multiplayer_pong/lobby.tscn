@@ -47,8 +47,8 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -110.0
 offset_top = -73.0
-offset_right = 110.0
-offset_bottom = 73.0
+offset_right = 162.0
+offset_bottom = 153.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 2
@@ -69,11 +69,11 @@ text = "Address:"
 layout_mode = 0
 offset_left = 10.0
 offset_top = 37.0
-offset_right = 210.0
+offset_right = 265.0
 offset_bottom = 68.0
 size_flags_horizontal = 2
 size_flags_vertical = 2
-text = "127.0.0.1"
+text = "127.0.0.1:8765"
 
 [node name="HostButton" type="Button" parent="LobbyPanel"]
 layout_mode = 0
@@ -87,13 +87,22 @@ text = "Host"
 
 [node name="JoinButton" type="Button" parent="LobbyPanel"]
 layout_mode = 0
-offset_left = 130.0
-offset_top = 76.0
-offset_right = 210.0
-offset_bottom = 107.0
+offset_left = 98.0
+offset_top = 75.0
+offset_right = 178.0
+offset_bottom = 106.0
 size_flags_horizontal = 2
 size_flags_vertical = 2
 text = "Join"
+
+[node name="MatchButton" type="Button" parent="LobbyPanel"]
+offset_left = 191.0
+offset_top = 75.0
+offset_right = 271.0
+offset_bottom = 106.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+text = "Match"
 
 [node name="StatusOk" type="Label" parent="LobbyPanel"]
 layout_mode = 0
@@ -152,4 +161,5 @@ text = "Find your public IP address"
 
 [connection signal="pressed" from="LobbyPanel/HostButton" to="LobbyPanel" method="_on_host_pressed"]
 [connection signal="pressed" from="LobbyPanel/JoinButton" to="LobbyPanel" method="_on_join_pressed"]
+[connection signal="pressed" from="LobbyPanel/MatchButton" to="LobbyPanel" method="_on_match_pressed"]
 [connection signal="pressed" from="LobbyPanel/FindPublicIP" to="LobbyPanel" method="_on_find_public_ip_pressed"]

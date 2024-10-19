@@ -8,6 +8,7 @@ const DEFAULT_PORT = 8910
 @onready var address: LineEdit = $Address
 @onready var host_button: Button = $HostButton
 @onready var join_button: Button = $JoinButton
+@onready var match_button: Button = $MatchButton
 @onready var status_ok: Label = $StatusOk
 @onready var status_fail: Label = $StatusFail
 @onready var port_forward_label: Label = $PortForward
@@ -62,9 +63,7 @@ func _connected_fail() -> void:
 	_set_status("Couldn't connect.", false)
 
 	multiplayer.set_multiplayer_peer(null)  # Remove peer.
-	host_button.set_disabled(false)
-	join_button.set_disabled(false)
-
+	_enable_buttons()
 
 func _server_disconnected() -> void:
 	_end_game("Server disconnected.")
@@ -79,8 +78,7 @@ func _end_game(with_error: String = "") -> void:
 		show()
 
 	multiplayer.set_multiplayer_peer(null)  # Remove peer.
-	host_button.set_disabled(false)
-	join_button.set_disabled(false)
+	_enable_buttons()
 
 	_set_status(with_error, false)
 	if _is_dedicated_server():
@@ -114,8 +112,7 @@ func _host_server() -> void:
 	peer.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
 
 	multiplayer.set_multiplayer_peer(peer)
-	host_button.set_disabled(true)
-	join_button.set_disabled(true)
+	_disable_buttons()
 	_set_status("Waiting for player...", true)
 	get_window().title = ProjectSettings.get_setting("application/config/name") + ": Server"
 
@@ -123,6 +120,55 @@ func _host_server() -> void:
 	port_forward_label.visible = true
 	find_public_ip_button.visible = true
 
+func _disable_buttons() -> void:
+	host_button.set_disabled(true)
+	join_button.set_disabled(true)
+	match_button.set_disabled(true)
+	
+func _enable_buttons() -> void:
+	host_button.set_disabled(false)
+	join_button.set_disabled(false)
+	match_button.set_disabled(false)
+var socket := WebSocketPeer.new()
+func _process(_delta: float) -> void:
+	socket.poll()
+	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
+		while socket.get_available_packet_count():
+			var message := socket.get_packet().get_string_from_ascii()
+			var ip_port := message.split(":")
+			if len(ip_port) == 2 && ip_port[0].is_valid_ip_address() && ip_port[1].is_valid_int():
+				_set_status("connecting to server at " + message, true)
+				_join_game(ip_port[0], ip_port[1].to_int())
+			else:
+				_set_status(message, true)
+
+func _on_match_pressed() -> void:
+	_set_status("", true)
+	var ip_port := address.get_text().split(":")
+	var ip := ip_port[0]
+	if not ip.is_valid_ip_address():
+		_set_status("IP address is invalid.", false)
+		return
+	var matchmaker_address := "ws://"+ip
+	if ip_port.size()>1:
+		matchmaker_address = matchmaker_address + ":" + ip_port[1]
+	
+	var socket_state := socket.get_ready_state()
+	if socket_state == WebSocketPeer.STATE_CLOSED || socket_state == WebSocketPeer.STATE_CLOSING:
+		if socket.connect_to_url(matchmaker_address) != OK:
+			_set_status("Unable to connect to matchmaker.", false)
+			set_process(false)
+		_set_status("Matchmaking...", true)
+	
+	_disable_buttons()
+	while socket.get_ready_state() == WebSocketPeer.STATE_CONNECTING:
+		# Create a Timer node
+		var timer := Timer.new()
+		add_child(timer)
+		timer.wait_time = 0.2
+		timer.start()
+		await timer.timeout
+		remove_child(timer)
 
 func _on_join_pressed() -> void:
 	var ip_port := address.get_text().split(":")
@@ -134,13 +180,15 @@ func _on_join_pressed() -> void:
 	var port := DEFAULT_PORT
 	if ip_port.size()>1 && ip_port[1].is_valid_int():
 		port = ip_port[1].to_int()
+	_join_game(ip, port)
 
+func _join_game(ip: String, port: int) -> void:
 	peer = ENetMultiplayerPeer.new()
 	peer.create_client(ip, port)
 	peer.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.set_multiplayer_peer(peer)
-
-	_set_status("Connecting...", true)
+	_disable_buttons()
+	_set_status("Connecting to %s:%d "%[ip, port], true)
 	get_window().title = ProjectSettings.get_setting("application/config/name") + ": Client"
 #endregion
 
