@@ -1,3 +1,5 @@
+import signal
+
 import accelbyte_py_sdk
 from accelbyte_py_sdk.core import MyConfigRepository
 from accelbyte_py_sdk.services.auth import login_client
@@ -5,6 +7,7 @@ from accelbyte_py_sdk.api.ams import fleet_claim_by_keys
 from accelbyte_py_sdk.api.ams.models import ApiFleetClaimByKeysReq
 import asyncio
 from websockets.asyncio.server import serve, broadcast
+import http
 
 client_id = ""
 client_secret = ""
@@ -12,6 +15,12 @@ namespace = "bjorn"
 base_url = "https://development.accelbyte.io"
 
 CONNECTIONS = set()
+stop = False
+
+
+def sigterm_handler(sig, frame):
+    global stop
+    stop = True
 
 
 async def register(websocket):
@@ -23,7 +32,7 @@ async def register(websocket):
 
 
 async def matchmaker():
-    while True:
+    while not stop:
         while len(CONNECTIONS) >= 2:
             next_two = list(CONNECTIONS)[:2]
             broadcast(next_two, "Match found! Requesting server...")
@@ -52,6 +61,7 @@ def claim():
 
 
 async def main():
+    signal.signal(signal.SIGTERM, sigterm_handler)
     config = MyConfigRepository(
         base_url=base_url,
         client_id=client_id,
@@ -70,8 +80,16 @@ async def main():
         print(error)
         exit(1)
 
-    async with serve(register, "localhost", 8765):
+    async with serve(
+            register,
+            "localhost",
+            8080,
+            process_request=health_check):
         await matchmaker()  # run forever
+
+def health_check(connection, request):
+    if request.path == "/healthz":
+        return connection.respond(http.HTTPStatus.OK, "OK\n")
 
 
 if __name__ == "__main__":
