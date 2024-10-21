@@ -72,7 +72,7 @@ async def main():
 
     async with serve(
             register,
-            "localhost",
+            "",
             8080,
             process_request=health_check):
         await matchmaker()  # run forever
