@@ -9,10 +9,11 @@ import asyncio
 from websockets.asyncio.server import serve, broadcast
 import http
 
-client_id = ""
-client_secret = ""
-namespace = "bjorn"
-base_url = "https://development.accelbyte.io"
+# set these environment variables
+# AB_BASE_URL
+# AB_NAMESPACE
+# AB_CLIENT_ID
+# AB_CLIENT_SECRET
 
 CONNECTIONS = set()
 stop = False
@@ -62,18 +63,7 @@ def claim():
 
 async def main():
     signal.signal(signal.SIGTERM, sigterm_handler)
-    config = MyConfigRepository(
-        base_url=base_url,
-        client_id=client_id,
-        client_secret=client_secret,
-        namespace=namespace,
-    )
-
-    accelbyte_py_sdk.initialize(
-        options={
-            "config": config,
-        },
-    )
+    accelbyte_py_sdk.initialize()
 
     _, error = login_client()
     if error:

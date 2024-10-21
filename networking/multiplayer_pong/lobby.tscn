@@ -73,7 +73,7 @@ offset_right = 265.0
 offset_bottom = 68.0
 size_flags_horizontal = 2
 size_flags_vertical = 2
-text = "127.0.0.1:8765"
+text = "127.0.0.1:8080"
 
 [node name="HostButton" type="Button" parent="LobbyPanel"]
 layout_mode = 0
@@ -96,6 +96,7 @@ size_flags_vertical = 2
 text = "Join"
 
 [node name="MatchButton" type="Button" parent="LobbyPanel"]
+layout_mode = 0
 offset_left = 191.0
 offset_top = 75.0
 offset_right = 271.0
