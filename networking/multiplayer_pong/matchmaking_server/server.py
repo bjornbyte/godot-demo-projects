@@ -1,3 +1,4 @@
+import os
 import signal
 
 import accelbyte_py_sdk
@@ -70,10 +71,12 @@ async def main():
         print(error)
         exit(1)
 
+    port = os.environ.get("PORT", 8080)
+
     async with serve(
             register,
             "",
-            8080,
+            port,
             process_request=health_check):
         await matchmaker()  # run forever
 
