@@ -144,14 +144,16 @@ func _process(_delta: float) -> void:
 
 func _on_match_pressed() -> void:
 	_set_status("", true)
-	var ip_port := address.get_text().split(":")
-	var ip := ip_port[0]
-	if not ip.is_valid_ip_address():
-		_set_status("IP address is invalid.", false)
-		return
-	var matchmaker_address := "ws://"+ip
-	if ip_port.size()>1:
-		matchmaker_address = matchmaker_address + ":" + ip_port[1]
+	var matchmaker_address := address.get_text()
+	if !matchmaker_address.begins_with("ws"):
+		var ip_port := matchmaker_address.split(":")
+		var ip := ip_port[0]
+		if not ip.is_valid_ip_address():
+			_set_status("IP address is invalid.", false)
+			return
+		matchmaker_address = "ws://"+ip
+		if ip_port.size()>1:
+			matchmaker_address = matchmaker_address + ":" + ip_port[1]
 	
 	var socket_state := socket.get_ready_state()
 	if socket_state == WebSocketPeer.STATE_CLOSED || socket_state == WebSocketPeer.STATE_CLOSING:

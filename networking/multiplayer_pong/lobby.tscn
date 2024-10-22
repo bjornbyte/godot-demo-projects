@@ -73,7 +73,7 @@ offset_right = 265.0
 offset_bottom = 68.0
 size_flags_horizontal = 2
 size_flags_vertical = 2
-text = "127.0.0.1:8080"
+text = "wss://godot-demo-projects.onrender.com"
 
 [node name="HostButton" type="Button" parent="LobbyPanel"]
 layout_mode = 0

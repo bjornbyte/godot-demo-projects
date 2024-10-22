@@ -26,6 +26,7 @@ def sigterm_handler(sig, frame):
 
 
 async def register(websocket):
+    print("New connection")
     CONNECTIONS.add(websocket)
     try:
         await websocket.wait_closed()
@@ -36,12 +37,15 @@ async def register(websocket):
 async def matchmaker():
     while not stop:
         while len(CONNECTIONS) >= 2:
+            print("Match found! Requesting server...")
             next_two = list(CONNECTIONS)[:2]
             broadcast(next_two, "Match found! Requesting server...")
             host_port = claim()
             if not host_port:
+                print("No server available. Waiting...")
                 broadcast(next_two, "No server available. Waiting...")
                 break
+            print("Server found! Connecting players...")
             broadcast(next_two, host_port)
             await asyncio.sleep(0.1)  # so the message gets sent before closing the connection
             for ws in next_two:
