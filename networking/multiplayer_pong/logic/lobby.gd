@@ -15,9 +15,14 @@ const DEFAULT_PORT = 8910
 @onready var find_public_ip_button: LinkButton = $FindPublicIP
 
 var peer: ENetMultiplayerPeer
+var in_session := false
 
 func _is_dedicated_server() -> bool:
 	return OS.has_feature("dedicated_server") || Ams.is_enabled()
+
+func _handle_ams_drain() -> void:
+	if !in_session:
+		get_tree().quit(0)
 
 func _ready() -> void:
 	# Connect all the callbacks related to networking.
@@ -32,10 +37,12 @@ func _ready() -> void:
 		_host_server()
 		if (Ams.is_enabled()):
 			Ams.SendReady()
+			Ams.drain.connect(_handle_ams_drain)
 
 #region Network callbacks from SceneTree
 # Callback from SceneTree.
 func _player_connected(_id: int) -> void:
+	in_session = true
 	if (multiplayer.get_peers().size() == 2):
 		# Everyone connected, start the game!
 		var pong: Node2D = load("res://pong.tscn").instantiate()
